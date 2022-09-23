@@ -1,0 +1,15 @@
+@import '../base/theme';
+
+.input {
+    padding: 10px;
+    &__label {
+        font-size: 12px;
+    }
+    &__field {
+        padding: 12px 12px 8px 12px;
+        width: -webkit-fill-available;
+        font-size: 14px;
+        border: 1px solid $black-50;
+        border-radius: 5px 5px 0px 0px;
+    }
+}

@@ -1,0 +1,25 @@
+@import '../abstracts/mixins';
+.grid {
+    padding: 5%;
+    @include breakpoint(largeDesktop) {
+        padding: 4.5% 6%;
+    }
+    @include breakpoint(desktop) {
+        padding: 5% 5%;
+    }
+    @include breakpoint(tablet) {
+        padding: 5% 3.5%;
+    }
+    @include breakpoint(belowTablet) {
+        padding: 5% 2.5%;
+    }
+    @include breakpoint(mobile) {
+        padding: 5% 2%;
+    }
+    @include breakpoint(mobileLarge) {
+        padding: 5% 1%;
+    }
+    @include breakpoint(mobileMedium) {
+        padding: 5% 0.5%;
+    }
+}

@@ -1,0 +1,62 @@
+@import '../base/theme';
+@import '../abstracts/variables';
+@import '../abstracts/mixins';
+
+
+.modal__wrap {
+    position:fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba($color: $black, $alpha: 0.80);
+}
+
+.modal{
+    width: 40%;
+    @include breakpoint(largeDesktop) {
+        width: 40%;
+    }
+    @include breakpoint(desktop) {
+        width: 50%;
+    }
+    @include breakpoint(tablet) {
+        width: 60%;
+    }
+    @include breakpoint(belowTablet) {
+        width: 70%;
+    }
+    @include breakpoint(mobile) {
+        width: 80%;
+    }
+    @include breakpoint(mobileLarge) {
+        width: 90%;
+    }
+    @include breakpoint(mobileMedium) {
+        width: 95%;
+    }
+    background-color: $black-75;
+    border-radius: $border-radius2;
+    &__close-wrap {
+        display: flex;
+        justify-content: flex-end;
+        &__close {
+            width: 32px;
+            height: 32px;
+            background-color: $black;
+            border-radius: 0px $border-radius2 0px $border-radius2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            :hover {
+                cursor: pointer;
+            }
+        }
+    }
+    &__content {
+        padding: 0px 32px 32px 32px;
+    }
+}

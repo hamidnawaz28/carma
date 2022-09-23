@@ -1,0 +1,14 @@
+@import '../../scss/base/theme';
+.header{
+    background-color: $primary-main;
+    color: $light;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px calc(5% + 10px);
+    text-decoration: none;
+    &__logo{
+     text-decoration: none !important;
+     color: $light;   
+    }
+}

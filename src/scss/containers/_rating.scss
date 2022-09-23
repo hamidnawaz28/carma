@@ -1,0 +1,21 @@
+@import '../base/theme';
+
+.rating{ 
+    &__title {
+        padding: 20px 0px;
+    }
+    &__star {
+        color: $primary-main;
+        &--selected{
+            filter:$seconday-filtered
+        }
+        &:hover{
+            filter:$seconday-filtered;
+            cursor: pointer;
+        }
+    }
+    &__container { 
+        padding: 20px 0px;
+        
+    }
+}

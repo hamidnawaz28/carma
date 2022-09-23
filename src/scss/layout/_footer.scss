@@ -1,0 +1,26 @@
+@import '../../scss/base/theme';
+
+.footer{
+    width: 100%;
+    border-top: 1px solid $black-25;
+    background-color: $primary-main;
+    color: $light;
+    padding: 10px 0px;
+    
+    & a {
+        color: $light;
+        padding: 0px 5px;
+    }
+    
+    &__copyright {
+        font-size: 12px;
+    }
+
+    &__icons {
+        display: flex;
+        justify-content: center;   
+        & img {
+            height: 30px;
+        }
+    }
+}

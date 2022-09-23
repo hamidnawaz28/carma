@@ -1,0 +1,50 @@
+@mixin breakpoint($point) {
+    @if $point==xLargeDesktop {
+        @media (min-width: 1400px) {
+          @content;
+        }
+      }
+    @if $point==largeDesktop {
+      @media (max-width: 1400px) {
+        @content;
+      }
+    }
+    @if $point==desktop {
+      @media (max-width: 1400px) {
+        @content;
+      }
+    } 
+    @if $point==tablet {
+      @media (max-width: 1024px) {
+        @content;
+      }
+    }
+    @if $point==belowTablet {
+      @media (max-width: 768px) {
+        @content;
+      }
+    } 
+    @if $point==mobile {
+      @media (max-width: 590px) {
+        @content;
+      }
+    }
+  
+    @if $point==mobileLarge {
+      @media (max-width: 425px) {
+        @content;
+      }
+    }
+  
+    @if $point==mobileMedium {
+      @media (max-width: 375px) {
+        @content;
+      }
+    }
+    @if $point==mobileSmall {
+      @media (max-width: 320px) {
+        @content;
+      }
+    }
+  }
+  

@@ -1,0 +1,17 @@
+@import '../base/theme';
+
+.bar-chart {
+    width: 70vw;
+    height: 80vh;
+    max-height: 500px;
+    &__container{
+        height: 100%;
+        width: 100%;
+        margin-right: 0px;
+        margin-left: 0px
+    }
+}
+
+.tooltip-area{
+    color: antiquewhite;
+}

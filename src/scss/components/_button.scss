@@ -1,0 +1,17 @@
+@import '../../scss/base/theme';
+button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    color: $light;
+    font-size: 12px;
+    background-color: $secondary-main;
+    display: block;
+    &:hover {
+        cursor: pointer;
+    }
+
+}
+button.--disabled {
+    background-color: $semi-black;
+}
