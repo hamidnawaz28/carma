@@ -1,0 +1,7 @@
+.stats {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  width: 100%; }
+  .stats div {
+    margin-bottom: 100px; }

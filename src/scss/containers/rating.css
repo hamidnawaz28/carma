@@ -1,0 +1,13 @@
+.rating__title {
+  padding: 20px 0px; }
+
+.rating__star {
+  color: indianred; }
+  .rating__star--selected {
+    filter: invert(81%) sepia(63%) saturate(1936%) hue-rotate(347deg) brightness(99%) contrast(101%); }
+  .rating__star:hover {
+    filter: invert(81%) sepia(63%) saturate(1936%) hue-rotate(347deg) brightness(99%) contrast(101%);
+    cursor: pointer; }
+
+.rating__container {
+  padding: 20px 0px; }

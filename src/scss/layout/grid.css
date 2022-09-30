@@ -1,0 +1,23 @@
+.grid {
+  padding: 5%; }
+  @media (max-width: 1400px) {
+    .grid {
+      padding: 4.5% 6%; } }
+  @media (max-width: 1400px) {
+    .grid {
+      padding: 5% 5%; } }
+  @media (max-width: 1024px) {
+    .grid {
+      padding: 5% 3.5%; } }
+  @media (max-width: 768px) {
+    .grid {
+      padding: 5% 2.5%; } }
+  @media (max-width: 590px) {
+    .grid {
+      padding: 5% 2%; } }
+  @media (max-width: 425px) {
+    .grid {
+      padding: 5% 1%; } }
+  @media (max-width: 375px) {
+    .grid {
+      padding: 5% 0.5%; } }

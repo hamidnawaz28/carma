@@ -1,0 +1,13 @@
+button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  color: #FFFFFF;
+  font-size: 12px;
+  background-color: #FDBC11;
+  display: block; }
+  button:hover {
+    cursor: pointer; }
+
+button.--disabled {
+  background-color: #808080; }

@@ -1,0 +1,16 @@
+.footer {
+  width: 100%;
+  border-top: 1px solid #ADADAD;
+  background-color: indianred;
+  color: #FFFFFF;
+  padding: 10px 0px; }
+  .footer a {
+    color: #FFFFFF;
+    padding: 0px 5px; }
+  .footer__copyright {
+    font-size: 12px; }
+  .footer__icons {
+    display: flex;
+    justify-content: center; }
+    .footer__icons img {
+      height: 30px; }

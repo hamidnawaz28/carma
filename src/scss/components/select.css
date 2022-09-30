@@ -1,0 +1,8 @@
+.select {
+  padding: 10px; }
+  .select__input {
+    padding: 12px 12px 8px 12px;
+    width: -webkit-fill-available;
+    font-size: 14px;
+    border: 1px solid #F2F2F2;
+    border-radius: 5px 5px 0px 0px; }

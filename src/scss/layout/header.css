@@ -1,0 +1,11 @@
+.header {
+  background-color: indianred;
+  color: #FFFFFF;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px calc(5% + 10px);
+  text-decoration: none; }
+  .header__logo {
+    text-decoration: none !important;
+    color: #FFFFFF; }
