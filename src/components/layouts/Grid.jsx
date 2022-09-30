@@ -1,5 +1,5 @@
 import React from "react";
-import "../../scss/layout/_grid.scss";
+import "../../scss/layout/grid.css";
 
 const Grid = ({ children }) => {
   return <div className="grid">{children}</div>;

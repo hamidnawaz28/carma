@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { Button } from "../../components";
 import { MOVIE_DB_IMAGE_BASE } from "../../utils/constants";
 import { RateMovie } from "../../containers";
-import "../../scss/pages/_details.scss";
+import "../../scss/pages/details.css";
 
 import Bill from "../../assets/images/Bill.svg";
 import Moneybag from "../../assets/images/Moneybag.svg";

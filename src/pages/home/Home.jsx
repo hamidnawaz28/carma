@@ -4,7 +4,7 @@ import { MovieCard, Pagination, Select } from "../../components";
 import { useMovie } from "../../hooks";
 import { updatePage } from "../../redux/actions";
 import { FILTERS } from "../../utils/constants";
-import "../../scss/pages/_home.scss";
+import "../../scss/pages/home.css";
 
 const Home = () => {
   const { page } = useSelector((data) => data.movies);

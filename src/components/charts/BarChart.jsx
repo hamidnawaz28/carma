@@ -1,7 +1,7 @@
 import { useD3 } from "../../hooks/useD3";
 import React from "react";
 import * as d3 from "d3";
-import "../../scss/components/_bar-chart.scss";
+import "../../scss/components/bar-chart.css";
 
 const BAR_PADDING = 0.1,
   CHART_MARGIN = {
@@ -101,7 +101,7 @@ const BarChart = ({
 
       svg
         .select(`#${id} .plot-area`)
-        .attr("fill", COLOR)
+        .attr("fill", "#e47f93")
         .selectAll(".bar")
         .data(data)
         .join("rect")
@@ -137,6 +137,8 @@ const BarChart = ({
         .attr("x", HALF_WIDTH + 50)
         .attr("dy", ".75em")
         .text(xTitle);
+
+      d3.selectAll(".bar").transition().duration(500).style("fill", COLOR);
     },
     [data.length]
   );

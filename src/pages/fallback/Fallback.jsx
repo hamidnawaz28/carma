@@ -1,5 +1,5 @@
 import React from "react";
-import "../../scss/pages/_fallback.scss";
+import "../../scss/pages/fallback.css";
 const Fallback = () => {
   return (
     <div className="fallback">

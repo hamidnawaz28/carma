@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "../button";
 import { urls } from "../../utils/constants";
 
-import "../../scss/layout/_header.scss";
+import "../../scss/layout/header.css";
 
 const Header = () => {
   return (

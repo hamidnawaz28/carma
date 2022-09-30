@@ -5,7 +5,7 @@ import { MOVIE_DB_IMAGE_BASE } from "../../utils/constants";
 import Users from "../../assets/images/Users.svg";
 import Trending from "../../assets/images/Trending.svg";
 import Star from "../../assets/images/Star.svg";
-import "../../scss/components/_movie-card.scss";
+import "../../scss/components/movie-card.css";
 
 const MovieCard = ({ movies }) => {
   return (

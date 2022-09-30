@@ -1,5 +1,5 @@
 import React from "react";
-import "../../scss/layout/_footer.scss";
+import "../../scss/layout/footer.css";
 import Facebook from "../../assets/images/Facebook.svg";
 import Instagram from "../../assets/images/Instagram.svg";
 import Linkedin from "../../assets/images/LinkedIn.svg";

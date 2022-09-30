@@ -1,6 +1,6 @@
 import React from "react";
 import CloseIcon from "../../assets/images/Close.svg";
-import "../../scss/components/_modal.scss";
+import "../../scss/components/modal.css";
 
 const Modal = ({ children, setShow }) => {
   return (

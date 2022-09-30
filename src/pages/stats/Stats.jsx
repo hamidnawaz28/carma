@@ -1,7 +1,7 @@
 import React from "react";
 import { useStats } from "../../hooks";
 import { BarChart } from "../../components/charts";
-import "../../scss/pages/_stats.scss";
+import "../../scss/pages/stats.css";
 
 const Stats = () => {
   const movieDetails = useStats();

@@ -1,7 +1,7 @@
 import React from "react";
 import ArrowForward from "../../assets/images/ArrowForward.svg";
 import ArrowBackward from "../../assets/images/ArrowBackward.svg";
-import "../../scss/components/_pagination.scss";
+import "../../scss/components/pagination.css";
 
 const Pagination = ({ page, pages, setPage }) => {
   const clickHandle = (event) => {

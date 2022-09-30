@@ -1,5 +1,5 @@
 import React from "react";
-import "../../scss/components/_button.scss";
+import "../../scss/components/button.css";
 
 const Button = ({ label, onClick, disabled = false }) => {
   return (

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button } from "../components";
 import { rateAMovie } from "../api/movie";
 import Star from "../assets/images/Star.svg";
-import "../scss/containers/_rating.scss";
+import "../scss/containers/rating.css";
 
 const RateMovie = ({ movieId, setShow, movieTitle }) => {
   const [rating, setRating] = useState(0);
