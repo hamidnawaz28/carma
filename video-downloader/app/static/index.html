@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Video Downloader</title>
+  <meta name="description" content="Download videos and reels from YouTube, Facebook, Instagram and TikTok." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='%236d5efc' d='M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1ZM5 19h14a1 1 0 1 1 0 2H5a1 1 0 1 1 0-2Z'/></svg>" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <h1>Video Downloader</h1>
+      <p class="sub">Paste a link to a video or reel and save it as MP4 or MP3.</p>
+      <ul class="platforms" aria-label="Supported platforms">
+        <li data-platform="youtube"><span class="dot"></span>YouTube</li>
+        <li data-platform="facebook"><span class="dot"></span>Facebook</li>
+        <li data-platform="instagram"><span class="dot"></span>Instagram</li>
+        <li data-platform="tiktok"><span class="dot"></span>TikTok</li>
+      </ul>
+    </header>
+
+    <form id="url-form" class="search" autocomplete="off">
+      <label for="url" class="visually-hidden">Video link</label>
+      <input id="url" name="url" type="url" inputmode="url" required
+             placeholder="https://www.youtube.com/watch?v=… or a reel link" />
+      <button type="button" id="paste" class="btn ghost" title="Paste from clipboard">Paste</button>
+      <button type="submit" id="fetch" class="btn primary">
+        <span class="label">Get video</span><span class="spinner" aria-hidden="true"></span>
+      </button>
+    </form>
+
+    <div id="error" class="alert" role="alert" hidden></div>
+
+    <section id="result" class="card" hidden>
+      <div class="media">
+        <div class="thumb">
+          <img id="thumb" alt="" referrerpolicy="no-referrer" />
+          <span id="duration" class="badge"></span>
+        </div>
+        <div class="meta">
+          <span id="platform" class="pill"></span>
+          <h2 id="title"></h2>
+          <p id="uploader" class="muted"></p>
+        </div>
+      </div>
+
+      <fieldset class="options">
+        <legend>Choose quality</legend>
+        <div id="options" class="option-grid"></div>
+      </fieldset>
+
+      <button id="download" class="btn primary wide">
+        <span class="label">Download</span><span class="spinner" aria-hidden="true"></span>
+      </button>
+
+      <div id="progress" class="progress" hidden>
+        <div class="bar"><div id="bar-fill"></div></div>
+        <div class="progress-text">
+          <span id="progress-status">Preparing…</span>
+          <span id="progress-detail" class="muted"></span>
+        </div>
+      </div>
+
+      <div id="done" class="done" hidden>
+        <p>✅ <strong id="done-name"></strong> <span id="done-size" class="muted"></span></p>
+        <a id="save-link" class="btn primary wide" href="#" download>Save file</a>
+      </div>
+    </section>
+
+    <footer class="foot muted">
+      Only download content you own or have permission to save. Respect creators’ rights and each
+      platform’s terms of service.
+    </footer>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+# default = recommended extras (incl. yt-dlp-ejs), deno = JS runtime YouTube now needs,
+# curl-cffi = browser impersonation that helps with TikTok/Facebook.
+yt-dlp[default,deno,curl-cffi]>=2026.10.26
