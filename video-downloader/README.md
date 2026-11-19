@@ -4,6 +4,8 @@ A small web app that downloads videos and reels from **YouTube, Facebook, Instag
 Paste a link, pick a quality (Best, 1080p, 720p, … or MP3 audio), and the file is downloaded to
 your device.
 
+![Screenshot](docs/preview.png)
+
 - **Backend:** Python + [FastAPI](https://fastapi.tiangolo.com/), with
   [yt-dlp](https://github.com/yt-dlp/yt-dlp) for extraction and ffmpeg for merging and converting
 - **Frontend:** plain HTML, CSS and JS that the backend serves at `/`, so no build step is needed
