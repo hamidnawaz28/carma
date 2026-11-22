@@ -11,7 +11,7 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 import yt_dlp
 from yt_dlp.utils import DownloadError
@@ -220,6 +220,60 @@ def fetch_info(url: str, platform: str) -> dict[str, Any]:
 # --------------------------------------------------------------------------- #
 
 
+def download_file(
+    url: str,
+    quality: str,
+    workdir: Path,
+    *,
+    on_entry: Callable[[dict[str, Any]], None] | None = None,
+    progress_hook: Callable[[dict[str, Any]], None] | None = None,
+    pp_hook: Callable[[dict[str, Any]], None] | None = None,
+) -> Path:
+    """Download ``url`` at ``quality`` into ``workdir`` and return the final file.
+
+    Raises ``ExtractionError`` with a user-facing message on failure.
+    """
+    workdir.mkdir(parents=True, exist_ok=True)
+    opts = (
+        _base_opts()
+        | _format_opts(quality)
+        | {
+            "outtmpl": str(workdir / "%(title).80B [%(id)s].%(ext)s"),
+            "max_filesize": settings.max_filesize_mb * 1024 * 1024,
+            "progress_hooks": [progress_hook] if progress_hook else [],
+            "postprocessor_hooks": [pp_hook] if pp_hook else [],
+        }
+    )
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            raw = ydl.extract_info(url, download=False)
+            if not raw:
+                raise ExtractionError("No downloadable video found at this link.")
+            entry = _pick_entry(raw)
+            if entry.get("is_live"):
+                raise ExtractionError("Live streams can't be downloaded.")
+            duration = entry.get("duration") or 0
+            if settings.max_duration_minutes and duration > settings.max_duration_minutes * 60:
+                raise ExtractionError(
+                    f"Videos longer than {settings.max_duration_minutes} minutes aren't allowed."
+                )
+            if on_entry:
+                on_entry(entry)
+            ydl.process_ie_result(entry, download=True)
+    except DownloadError as exc:
+        raise ExtractionError(_clean_error(exc)) from exc
+
+    files = [
+        p for p in workdir.iterdir()
+        if p.is_file() and not p.name.endswith((".part", ".ytdl", ".temp"))
+    ]
+    if not files:
+        raise ExtractionError(
+            f"Download produced no file (it may exceed the {settings.max_filesize_mb} MB limit)."
+        )
+    return max(files, key=lambda p: p.stat().st_size)
+
+
 @dataclass
 class Job:
     url: str
@@ -331,45 +385,20 @@ class JobManager:
             job.eta = None
 
     def _run(self, job: Job) -> None:
-        workdir = job.workdir
-        workdir.mkdir(parents=True, exist_ok=True)
-        opts = (
-            _base_opts()
-            | _format_opts(job.quality)
-            | {
-                "outtmpl": str(workdir / "%(title).80B [%(id)s].%(ext)s"),
-                "max_filesize": settings.max_filesize_mb * 1024 * 1024,
-                "progress_hooks": [lambda d: self._progress_hook(job, d)],
-                "postprocessor_hooks": [lambda d: self._pp_hook(job, d)],
-            }
-        )
-        try:
-            with yt_dlp.YoutubeDL(opts) as ydl:
-                raw = ydl.extract_info(job.url, download=False)
-                if not raw:
-                    raise ExtractionError("No downloadable video found at this link.")
-                entry = _pick_entry(raw)
-                job.title = entry.get("title")
-                if entry.get("is_live"):
-                    raise ExtractionError("Live streams can't be downloaded.")
-                duration = entry.get("duration") or 0
-                if settings.max_duration_minutes and duration > settings.max_duration_minutes * 60:
-                    raise ExtractionError(
-                        f"Videos longer than {settings.max_duration_minutes} minutes aren't allowed."
-                    )
-                job._parts_total = len(entry.get("requested_formats") or []) or 1
-                job.status = "downloading"
-                ydl.process_ie_result(entry, download=True)
+        def on_entry(entry: dict[str, Any]) -> None:
+            job.title = entry.get("title")
+            job._parts_total = len(entry.get("requested_formats") or []) or 1
+            job.status = "downloading"
 
-            files = [
-                p for p in workdir.iterdir()
-                if p.is_file() and not p.name.endswith((".part", ".ytdl", ".temp"))
-            ]
-            if not files:
-                raise ExtractionError(
-                    f"Download produced no file (it may exceed the {settings.max_filesize_mb} MB limit)."
-                )
-            final = max(files, key=lambda p: p.stat().st_size)
+        try:
+            final = download_file(
+                job.url,
+                job.quality,
+                job.workdir,
+                on_entry=on_entry,
+                progress_hook=lambda d: self._progress_hook(job, d),
+                pp_hook=lambda d: self._pp_hook(job, d),
+            )
             job.filepath = final
             job.filename = final.name
             job.filesize = final.stat().st_size
@@ -377,8 +406,6 @@ class JobManager:
             job.status = "finished"
         except ExtractionError as exc:
             job.status, job.error = "error", str(exc)
-        except DownloadError as exc:
-            job.status, job.error = "error", _clean_error(exc)
         except Exception as exc:  # pragma: no cover - defensive
             log.exception("download job %s failed", job.id)
             job.status, job.error = "error", f"Unexpected error: {exc}"
@@ -386,7 +413,7 @@ class JobManager:
             job.finished_at = time.time()
             job.speed = job.eta = None
             if job.status == "error":
-                shutil.rmtree(workdir, ignore_errors=True)
+                shutil.rmtree(job.workdir, ignore_errors=True)
 
     # -- housekeeping ------------------------------------------------------- #
 

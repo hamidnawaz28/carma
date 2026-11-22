@@ -137,3 +137,31 @@ def test_cleanup_removes_expired(client, allow_localhost, media_server):
     main.jobs.cleanup(now=time.time() + main.settings.file_ttl_minutes * 60 + 1)
     assert not workdir.exists()
     assert client.get(f"/api/jobs/{job['id']}").status_code == 404
+
+
+@pytest.mark.parametrize("quality,ext", [("best", ".mp4"), ("audio", ".mp3")])
+def test_stream_endpoint(client, allow_localhost, media_server, quality, ext):
+    r = client.get("/api/stream", params={"url": media_server, "quality": quality})
+    assert r.status_code == 200, r.text
+    assert "attachment" in r.headers["content-disposition"]
+    assert ext in r.headers["content-disposition"]
+    assert len(r.content) > 1000
+    # temp files are removed once the response has been sent
+    leftovers = [p for p in main.settings.download_dir.glob("s-*")]
+    assert leftovers == []
+
+
+def test_stream_errors(client, allow_localhost, media_server):
+    r = client.get("/api/stream", params={"url": "https://example.com/x.mp4"})
+    assert r.status_code == 400
+    r = client.get("/api/stream", params={"url": media_server, "quality": "nope"})
+    assert r.status_code == 400
+    r = client.get("/api/stream", params={"url": media_server.replace("clip", "missing")})
+    assert r.status_code == 422
+    assert r.json()["detail"]
+
+
+def test_config_mode(client, monkeypatch):
+    assert client.get("/api/config").json()["mode"] == "jobs"
+    monkeypatch.setattr(main.settings, "stateless", True)
+    assert client.get("/api/config").json()["mode"] == "stream"

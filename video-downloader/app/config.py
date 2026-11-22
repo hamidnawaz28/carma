@@ -33,6 +33,13 @@ class Settings:
     cookies_file: str | None = os.environ.get("COOKIES_FILE") or None
     # Optional outbound proxy for yt-dlp, e.g. http://user:pass@host:port
     proxy: str | None = os.environ.get("YTDLP_PROXY") or None
+    # Stateless mode for serverless hosts (e.g. Vercel), where consecutive
+    # requests may hit different instances: each download is one request that
+    # streams the finished file back, instead of a background job + polling.
+    stateless: bool = (
+        os.environ.get("STATELESS", "").lower() in ("1", "true", "yes")
+        or os.environ.get("VERCEL") == "1"
+    )
 
 
 settings = Settings()

@@ -27,6 +27,12 @@
 
   let current = null; // info for the currently shown video
   let pollTimer = null;
+  let mode = "jobs"; // "jobs" (background job + polling) or "stream" (serverless)
+  let objectUrl = null;
+  const configReady = fetch("/api/config")
+    .then((r) => r.json())
+    .then((cfg) => { mode = cfg.mode || "jobs"; })
+    .catch(() => {});
 
   // ---------------------------------------------------------------- helpers
 
@@ -228,6 +234,80 @@
     }
   }
 
+  function filenameFromHeaders(res, fallback) {
+    const cd = res.headers.get("content-disposition") || "";
+    const star = cd.match(/filename\*=(?:UTF-8'')?([^;]+)/i);
+    if (star) {
+      try { return decodeURIComponent(star[1].trim().replace(/^"|"$/g, "")); } catch (_) { /* fall through */ }
+    }
+    const plain = cd.match(/filename="?([^";]+)"?/i);
+    return plain ? plain[1] : fallback;
+  }
+
+  // Serverless mode: one request downloads on the server and streams the file
+  // back. We read it with fetch() so we can show progress, then save the blob.
+  async function streamDownload(quality) {
+    progress.hidden = false;
+    bar.classList.add("indeterminate");
+    progressStatus.textContent = "Preparing on the server…";
+    const started = Date.now();
+    const tick = setInterval(() => {
+      progressDetail.textContent = `${Math.round((Date.now() - started) / 1000)}s`;
+    }, 1000);
+
+    const qs = new URLSearchParams({ url: current.url, quality });
+    let res;
+    try {
+      res = await fetch(`/api/stream?${qs}`);
+    } finally {
+      clearInterval(tick);
+    }
+    if (!res.ok) {
+      let msg = `Download failed (${res.status})`;
+      try {
+        const data = await res.json();
+        if (typeof data.detail === "string") msg = data.detail;
+      } catch (_) {
+        if (res.status === 504) msg = "The server took too long — try a lower quality or a shorter video.";
+      }
+      throw new Error(msg);
+    }
+
+    const filename = filenameFromHeaders(res, `video.${quality === "audio" ? "mp3" : "mp4"}`);
+    const total = Number(res.headers.get("content-length")) || 0;
+    progressStatus.textContent = "Saving to your device…";
+    bar.classList.toggle("indeterminate", !total);
+
+    const reader = res.body.getReader();
+    const chunks = [];
+    let received = 0;
+    for (;;) {
+      const { done: finished, value } = await reader.read();
+      if (finished) break;
+      chunks.push(value);
+      received += value.length;
+      if (total) {
+        const pct = (received / total) * 100;
+        barFill.style.width = `${pct}%`;
+        progressDetail.textContent = `${pct.toFixed(0)}% · ${formatBytes(received)} of ${formatBytes(total)}`;
+      } else {
+        progressDetail.textContent = formatBytes(received);
+      }
+    }
+
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    const blob = new Blob(chunks, { type: res.headers.get("content-type") || "application/octet-stream" });
+    objectUrl = URL.createObjectURL(blob);
+    progress.hidden = true;
+    downloadBtn.hidden = true;
+    done.hidden = false;
+    $("done-name").textContent = filename;
+    $("done-size").textContent = `(${formatBytes(blob.size)})`;
+    saveLink.href = objectUrl;
+    saveLink.setAttribute("download", filename);
+    saveLink.click();
+  }
+
   async function startDownload() {
     if (!current) return;
     const selected = optionsBox.querySelector("input[name=quality]:checked");
@@ -235,6 +315,16 @@
     showError("");
     resetDownloadUi();
     setLoading(downloadBtn, true);
+    await configReady;
+    if (mode === "stream") {
+      try {
+        await streamDownload(quality);
+      } catch (err) {
+        resetDownloadUi();
+        showError(err.message);
+      }
+      return;
+    }
     try {
       const job = await api("/api/download", {
         method: "POST",

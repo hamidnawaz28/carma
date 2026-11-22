@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import logging
+import shutil
 import threading
 import time
+import uuid
 from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -12,10 +14,18 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.background import BackgroundTask
 from pydantic import BaseModel, Field
 
 from .config import settings
-from .downloader import ExtractionError, JobManager, TooManyJobs, fetch_info
+from .downloader import (
+    ExtractionError,
+    JobManager,
+    TooManyJobs,
+    _format_opts,
+    download_file,
+    fetch_info,
+)
 from .platforms import UnsupportedURL, detect_platform, normalize_url
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -123,9 +133,50 @@ def job_file(job_id: str) -> FileResponse:
     return FileResponse(job.filepath, filename=job.filename, media_type=media_type)
 
 
+_stream_slots = threading.BoundedSemaphore(settings.max_concurrent_downloads)
+
+
+@app.get("/api/stream")
+def stream_download(url: str, request: Request, quality: str = "best") -> FileResponse:
+    """Download on the server and return the file in this same response.
+
+    Stateless (no job registry), so it works on serverless hosts where the
+    next request may land on a different instance.
+    """
+    _rate_limit(request)
+    url, _platform = _validate(url)
+    try:
+        _format_opts(quality)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    if not _stream_slots.acquire(blocking=False):
+        raise HTTPException(503, "The server is busy — please try again shortly.")
+
+    workdir = settings.download_dir / f"s-{uuid.uuid4().hex}"
+    try:
+        path = download_file(url, quality, workdir)
+    except ExtractionError as exc:
+        shutil.rmtree(workdir, ignore_errors=True)
+        raise HTTPException(422, str(exc)) from exc
+    except Exception:
+        shutil.rmtree(workdir, ignore_errors=True)
+        raise
+    finally:
+        _stream_slots.release()
+
+    media_type = "audio/mpeg" if path.suffix == ".mp3" else None
+    return FileResponse(
+        path,
+        filename=path.name,
+        media_type=media_type,
+        background=BackgroundTask(shutil.rmtree, workdir, ignore_errors=True),
+    )
+
+
 @app.get("/api/config")
 def public_config() -> dict:
     return {
+        "mode": "stream" if settings.stateless else "jobs",
         "max_filesize_mb": settings.max_filesize_mb,
         "max_duration_minutes": settings.max_duration_minutes,
         "file_ttl_minutes": settings.file_ttl_minutes,
