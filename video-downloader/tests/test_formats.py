@@ -64,3 +64,29 @@ def test_combined_only_sources():
     # Instagram/TikTok-style: only progressive formats, no height metadata.
     info = {"formats": [{"format_id": "0", "url": "u", "ext": "mp4"}]}
     assert [o["id"] for o in _quality_options(info)] == ["best", "audio"]
+
+
+def test_friendly_errors():
+    from yt_dlp.utils import DownloadError
+
+    from app.downloader import _clean_error
+
+    bot = DownloadError(
+        "ERROR: [youtube] jNQXAC9IVRw: Sign in to confirm you\u2019re not a bot. "
+        "Use --cookies-from-browser or --cookies for the authentication."
+    )
+    assert _clean_error(bot).startswith("YouTube is blocking downloads")
+    silent = DownloadError("ERROR: Postprocessing: WARNING: unable to obtain file audio codec with ffprobe")
+    assert "no audio track" in _clean_error(silent)
+
+
+def test_cookies_env(monkeypatch, tmp_path):
+    from app import config
+
+    monkeypatch.setattr(config.tempfile, "gettempdir", lambda: str(tmp_path))
+    monkeypatch.setenv("YTDLP_COOKIES", "# Netscape HTTP Cookie File\r\n.youtube.com\tTRUE\t/\tTRUE\t0\tA\tB")
+    s = config.Settings(cookies_file=None)
+    config._materialize_cookies(s)
+    assert s.cookies_file == str(tmp_path / "ytdlp-cookies.txt")
+    text = (tmp_path / "ytdlp-cookies.txt").read_text()
+    assert "\r" not in text and text.startswith("# Netscape")

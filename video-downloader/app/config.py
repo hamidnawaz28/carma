@@ -42,4 +42,17 @@ class Settings:
     )
 
 
+def _materialize_cookies(s: Settings) -> None:
+    """Allow cookies.txt *contents* in an env var (handy on Vercel and other
+    hosts without a persistent filesystem): write them to a temp file."""
+    text = os.environ.get("YTDLP_COOKIES", "").strip()
+    if not text or s.cookies_file:
+        return
+    path = Path(tempfile.gettempdir()) / "ytdlp-cookies.txt"
+    path.write_text(text.replace("\r\n", "\n") + "\n")
+    path.chmod(0o600)
+    s.cookies_file = str(path)
+
+
 settings = Settings()
+_materialize_cookies(settings)

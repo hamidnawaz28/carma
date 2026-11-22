@@ -96,13 +96,21 @@ def _clean_error(exc: BaseException) -> str:
     # Drop yt-dlp's "please report this issue..." boilerplate and nested causes.
     msg = re.split(r";\s*please report this issue|\s*\(caused by ", msg, maxsplit=1)[0].strip()
     lower = msg.lower()
+    if "not a bot" in lower:
+        return (
+            "YouTube is blocking downloads from this server (it often flags cloud-hosting "
+            "IPs). Try again later, or try a TikTok, Instagram or Facebook link. "
+            "Site owner: set YTDLP_COOKIES to fix this."
+        )
+    if "unable to obtain file audio codec" in lower or "no audio" in lower:
+        return "This video has no audio track to convert to MP3. Choose a video quality instead."
     if any(s in lower for s in ("unable to download webpage", "connect tunnel failed",
                                 "timed out", "name or service not known", "connection refused")):
         return "Couldn't reach the site right now. Check the link and try again in a moment."
     if "login" in lower or "cookies" in lower or "private" in lower or "rate-limit" in lower:
         msg += (
             " — this content may be private or require login. "
-            "The server admin can configure a cookies file (COOKIES_FILE)."
+            "The site owner can add login cookies (YTDLP_COOKIES or COOKIES_FILE)."
         )
     if "file is larger than max-filesize" in lower or "larger than max" in lower:
         msg = f"This video is larger than the {settings.max_filesize_mb} MB limit."
